@@ -2,42 +2,126 @@ from tensorflow.keras.utils import to_categorical
 import extract_feats.opensmile as of
 import extract_feats.librosa as lf
 import models
+import numpy as np
 from utils import parse_opt
+
+
 def train(config) -> None:
-    """
-    训练模型
 
-    Args:
-        config: 配置项
-
-    Returns:
-        model: 训练好的模型
-    """
+    # ----------------------------
+    # 1️⃣ Load Features
+    # ----------------------------
     if config.feature_method == 'o':
         x_train, x_test, y_train, y_test = of.load_feature(config, train=True)
 
     elif config.feature_method == 'l':
         x_train, x_test, y_train, y_test = lf.load_feature(config, train=True)
-    # x_train, x_test (n_samples, n_feats)
-    # y_train, y_test (n_samples)
+
+    # ----------------------------
+    # 2️⃣ Debug Information
+    # ----------------------------
+    print("\n========== DATASET DEBUG ==========")
+    print("Unique labels in training:", np.unique(y_train))
+    print("Unique labels in testing:", np.unique(y_test))
+    print("Number of dataset classes:", len(np.unique(y_train)))
+    print("Number of config classes:", len(config.class_labels))
+    print("Config class_labels:", config.class_labels)
+    print("====================================\n")
+
+    # ----------------------------
+    # 3️⃣ Build Model
+    # ----------------------------
     model = models.make(config=config, n_feats=x_train.shape[1])
+
     print('----- start training', config.model, '-----')
+
+    # ----------------------------
+    # 4️⃣ One-Hot Encoding FIX
+    # ----------------------------
     if config.model in ['lstm', 'cnn1d', 'cnn2d']:
-        y_train, y_val = to_categorical(y_train), to_categorical(y_test) 
+
+        num_classes = len(config.class_labels)
+
+        # 🔥 Force same number of classes for train & test
+        y_train = to_categorical(y_train, num_classes=num_classes)
+        y_val = to_categorical(y_test, num_classes=num_classes)
+
         model.train(
             x_train, y_train,
             x_test, y_val,
-            batch_size = config.batch_size,
-            n_epochs = config.epochs
+            batch_size=config.batch_size,
+            n_epochs=config.epochs
         )
+
     else:
         model.train(x_train, y_train)
-    print('----- end training ', config.model, ' -----')
+
+    print('----- end training', config.model, '-----')
+
+    # ----------------------------
+    # 5️⃣ Evaluation
+    # ----------------------------
     model.evaluate(x_test, y_test)
+
+    # ----------------------------
+    # 6️⃣ Save Model
+    # ----------------------------
     model.save(config.checkpoint_path, config.checkpoint_name)
+
+
 if __name__ == '__main__':
     config = parse_opt()
     train(config)
+
+
+
+# from tensorflow.keras.utils import to_categorical
+# import extract_feats.opensmile as of
+# import extract_feats.librosa as lf
+# import models
+# import numpy as np
+# from utils import parse_opt
+# def train(config) -> None:
+#     # """
+#     # 训练模型
+
+#     # Args:
+#     #     config: 配置项
+
+#     # Returns:
+#     #     model: 训练好的模型
+#     # """
+#     if config.feature_method == 'o':
+#         x_train, x_test, y_train, y_test = of.load_feature(config, train=True)
+
+#     elif config.feature_method == 'l':
+#         x_train, x_test, y_train, y_test = lf.load_feature(config, train=True)
+#     print("Unique labels in training:", np.unique(y_train))
+#     print("Unique labels in testing:", np.unique(y_test))
+#     print("Number of dataset classes:", len(np.unique(y_train)))
+#     print("Number of config classes:", len(config.class_labels))
+#     print("Config class_labels:", config.class_labels)
+#     # x_train, x_test (n_samples, n_feats)
+#     # y_train, y_test (n_samples)
+#     model = models.make(config=config, n_feats=x_train.shape[1])
+#     print('----- start training', config.model, '-----')
+#     if config.model in ['lstm', 'cnn1d', 'cnn2d']:
+#         y_train, y_val = to_categorical(y_train), to_categorical(y_test) 
+#         model.train(
+#             x_train, y_train,
+#             x_test, y_val,
+#             batch_size = config.batch_size,
+#             n_epochs = config.epochs
+#         )
+#     else:
+#         model.train(x_train, y_train)
+#     print('----- end training ', config.model, ' -----')
+    
+#     model.evaluate(x_test, y_test)
+#     model.save(config.checkpoint_path, config.checkpoint_name)
+# if __name__ == '__main__':
+#     config = parse_opt()
+#     train(config)
 
 
 
