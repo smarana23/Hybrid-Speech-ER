@@ -1,102 +1,311 @@
-/* Background */
+/* ================= GLOBAL BACKGROUND ================= */
+
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-
-  background: linear-gradient(
-    -45deg,
-    #1e4972,
-    #663a91,
-    #20307a,
-    #caa7ff
-  );
-
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #4f46e5);
   background-size: 400% 400%;
-  animation: gradientFlow 12s ease infinite;
+  animation: gradient 12s ease infinite;
+}
 
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ================= MAIN APP LAYOUT ================= */
+
+.app {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
 }
-@keyframes gradientFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
-/* Main Card */
-.container {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 40px;
+/* ================= GLASS CARD ================= */
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  border-radius: 30px;
+  padding: 45px;
   width: 90%;
-  max-width: 900px;
+  max-width: 680px;
   text-align: center;
   color: white;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,0.5),
+    0 0 40px rgba(99,102,241,0.2);
+  animation: fadeIn 0.9s ease;
 }
 
-/* Title */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= TEXT ================= */
+
 h1 {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 32px;
+  letter-spacing: 1px;
 }
 
-/* Emotion Result */
-.result {
-  font-size: 22px;
-  margin: 20px 0;
-  font-weight: bold;
-  color: #11110f;
+.subtitle {
+  opacity: 0.7;
+  margin-bottom: 30px;
+  font-size: 15px;
 }
 
-/* Buttons */
-.button {
-  padding: 12px 25px;
-  margin: 10px;
-  font-size: 16px;
-  border-radius: 30px;
+/* ================= BUTTONS ================= */
+
+.btn {
+  padding: 14px 30px;
+  border-radius: 40px;
   border: none;
+  font-size: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: 0.35s ease;
+  font-weight: 500;
 }
 
-.start-btn {
-  background: #00c853b8;
+/* Start Button */
+.start {
+  background: linear-gradient(135deg, #6366f1, #9333ea);
   color: white;
 }
 
-.stop-btn {
-  background: #d50000;
+.start:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 30px rgba(99,102,241,0.6);
+}
+
+/* Stop Button */
+.stop {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
   color: white;
 }
 
-.button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+.stop:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 30px rgba(239,68,68,0.6);
 }
 
-/* Graph Layout */
-.graph-container {
-  margin-top: 30px;
+/* Recording Pulse */
+.pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+  70% { box-shadow: 0 0 0 18px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+
+/* ================= LOADER ================= */
+
+.loader-container {
+  margin-top: 25px;
+}
+
+.spinner {
+  margin: 20px auto;
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top: 4px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-container p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* ================= RESULT ================= */
+
+.result {
+  margin-top: 25px;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.result span {
+  color: #6366f1;
+  font-weight: bold;
+  margin-left: 6px;
+}
+
+/* ================= RADAR GRAPH SECTION ================= */
+
+.chart-box {
+  margin-top: 40px;
+  padding: 30px;
+  border-radius: 25px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.15),
+    rgba(147, 51, 234, 0.15)
+  );
+
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 35px rgba(99, 102, 241, 0.3);
+
+  animation: chartFade 0.7s ease forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+@keyframes chartFade {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Radar Canvas Styling */
+.chart-box canvas {
+  background: #dfdfd6;   /* Pure white background */
+  border-radius: 20px;
+  padding: 15px;
+}
+
+/* Hover Glow */
+.chart-box:hover {
+  transform: scale(1.02);
+  transition: 0.4s ease;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.6),
+    0 0 50px rgba(147, 51, 234, 0.5);
+}
+
+
+
+/* body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #4f46e5);
+  background-size: 400% 400%;
+  animation: gradient 12s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.app {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 40px;
+  min-height: 100vh;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 40px;
+  width: 90%;
+  max-width: 650px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  opacity: 0.7;
+  margin-bottom: 25px;
+}
+
+.btn {
+  padding: 14px 28px;
+  border-radius: 40px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.start {
+  background: linear-gradient(135deg, #6366f1, #9333ea);
+  color: white;
+}
+
+.stop {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: white;
+}
+
+.btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+
+.loader-container {
+  margin-top: 20px;
+}
+
+.spinner {
+  margin: 20px auto;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top: 4px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.result {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.result span {
+  color: #6366f1;
+  font-weight: bold;
 }
 
 .chart-box {
-  width: 100%;
-  max-width: 500px;
-  background: rgba(255,255,255,0.15);
+  margin-top: 30px;
+  background: rgba(255,255,255,0.12);
   padding: 20px;
-  border-radius: 15px;
-}
+  border-radius: 20px;
+} */
