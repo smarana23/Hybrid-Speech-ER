@@ -8,18 +8,14 @@ from utils import parse_opt
 
 def train(config) -> None:
 
-    # ----------------------------
-    # 1️⃣ Load Features
-    # ----------------------------
+
     if config.feature_method == 'o':
         x_train, x_test, y_train, y_test = of.load_feature(config, train=True)
 
     elif config.feature_method == 'l':
-        x_train, x_test, y_train, y_test = lf.load_feature(config, train=True)
+        x_train, x_test, y_train, y_test = lf.get_data(config, config.data_path, train=True)
 
-    # ----------------------------
-    # 2️⃣ Debug Information
-    # ----------------------------
+   
     print("\n========== DATASET DEBUG ==========")
     print("Unique labels in training:", np.unique(y_train))
     print("Unique labels in testing:", np.unique(y_test))
@@ -28,21 +24,16 @@ def train(config) -> None:
     print("Config class_labels:", config.class_labels)
     print("====================================\n")
 
-    # ----------------------------
-    # 3️⃣ Build Model
-    # ----------------------------
+
     model = models.make(config=config, n_feats=x_train.shape[1])
 
     print('----- start training', config.model, '-----')
 
-    # ----------------------------
-    # 4️⃣ One-Hot Encoding FIX
-    # ----------------------------
     if config.model in ['lstm', 'cnn1d', 'cnn2d']:
 
         num_classes = len(config.class_labels)
 
-        # 🔥 Force same number of classes for train & test
+       
         y_train = to_categorical(y_train, num_classes=num_classes)
         y_val = to_categorical(y_test, num_classes=num_classes)
 
@@ -58,14 +49,9 @@ def train(config) -> None:
 
     print('----- end training', config.model, '-----')
 
-    # ----------------------------
-    # 5️⃣ Evaluation
-    # ----------------------------
+
     model.evaluate(x_test, y_test)
 
-    # ----------------------------
-    # 6️⃣ Save Model
-    # ----------------------------
     model.save(config.checkpoint_path, config.checkpoint_name)
 
 

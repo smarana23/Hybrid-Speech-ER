@@ -39,9 +39,9 @@ def features(X, sample_rate: float) -> np.ndarray:
     flatness = np.mean(librosa.feature.spectral_flatness(y=X))
 
     # 使用系数为50的MFCC特征
-    mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=50).T, axis=0)
-    mfccsstd = np.std(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=50).T, axis=0)
-    mfccmax = np.max(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=50).T, axis=0)
+    mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=13).T, axis=0)
+    mfccsstd = np.std(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=13).T, axis=0)
+    mfccmax = np.max(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=13).T, axis=0)
 
     # 色谱图
     chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T, axis=0)
