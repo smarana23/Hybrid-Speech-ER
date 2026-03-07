@@ -23,6 +23,8 @@
 
 // function App() {
 //   const [isRecording, setIsRecording] = useState(false);
+//   const [isProcessing, setIsProcessing] = useState(false);
+//   const [isLoading, setIsLoading] = useState(false);
 //   const [emotion, setEmotion] = useState(null);
 //   const [probabilities, setProbabilities] = useState(null);
 
@@ -41,8 +43,9 @@
 //     };
 
 //     mediaRecorder.onstop = async () => {
-//       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+//       setIsLoading(true);
 
+//       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
 //       const formData = new FormData();
 //       formData.append("file", blob, "recording.webm");
 
@@ -56,23 +59,28 @@
 //         );
 
 //         const data = await response.json();
-
 //         setEmotion(data.emotion);
 //         setProbabilities(data.probability);
 //       } catch (error) {
-//         console.error("Error:", error);
-//         alert("Backend request failed. Please try again.");
+//         alert("Server error. Please try again.");
 //       }
 
-//       setIsRecording(false);
+//       setIsLoading(false);
+//       setIsProcessing(false);
 //     };
 
 //     mediaRecorder.start();
+//     setEmotion(null);
+//     setProbabilities(null);
 //     setIsRecording(true);
 //   };
 
 //   const stopRecording = () => {
-//     mediaRecorderRef.current.stop();
+//     if (mediaRecorderRef.current) {
+//       mediaRecorderRef.current.stop();
+//       setIsRecording(false);     // stop pulse immediately
+//       setIsProcessing(true);     // show processing button
+//     }
 //   };
 
 //   const radarData = probabilities && {
@@ -88,51 +96,99 @@
 //     ],
 //     datasets: [
 //       {
-//         label: "Emotion Confidence",
+//         label: "Confidence",
 //         data: probabilities,
-//         backgroundColor: "rgba(0, 200, 255, 0.2)",
-//         borderColor: "rgba(0, 200, 255, 1)",
+//         backgroundColor: "rgba(99, 102, 241, 0.2)",
+//         borderColor: "#6366f1",
 //         borderWidth: 2,
 //       },
 //     ],
 //   };
 
+//   const radarOptions = {
+//     scales: {
+//       r: {
+//         grid: {
+//           color: "rgba(0,0,0,0.2)"
+//         },
+//         angleLines: {
+//           color: "rgba(0,0,0,0.2)"
+//         },
+//         pointLabels: {
+//           color: "#111827"
+//         },
+//         ticks: {
+//           color: "#111827",
+//           backdropColor: "transparent"
+//         }
+//       }
+//     },
+//     plugins: {
+//       legend: {
+//         labels: {
+//           color: "#111827"
+//         }
+//       }
+//     }
+//   };
+
 //   return (
-//     <div className="container">
-//       <h1>🎤 Emotion Detection</h1>
-//       <p style={{ opacity: 0.8, marginBottom: "25px" }}>
-//         Speak naturally and let the model detect your emotional state.
-//       </p>
+//     <div className="app">
+//       <div className="card">
+//         <h1>🎤 Emotion AI</h1>
+//         <p className="subtitle">
+//           Speak naturally and let AI detect your emotion.
+//         </p>
 
-//       {!isRecording && (
-//         <button className="button start-btn" onClick={startRecording}>
-//           Start Recording
-//         </button>
-//       )}
+//         {/* Start Button */}
+//         {!isRecording && !isProcessing && !isLoading && (
+//           <button className="btn start" onClick={startRecording}>
+//             Start Recording
+//           </button>
+//         )}
 
-//       {isRecording && (
-//         <button className="button stop-btn" onClick={stopRecording}>
-//           Stop Recording
-//         </button>
-//       )}
+//         {/* Recording Button */}
+//         {isRecording && (
+//           <button className="btn stop pulse" onClick={stopRecording}>
+//             Recording...
+//           </button>
+//         )}
 
-//       {emotion && (
-//         <div className="result">
-//           Emotion Detected: <strong>{emotion}</strong>
-//         </div>
-//       )}
+//         {/* Processing Button */}
+//         {isProcessing && (
+//           <button className="btn stop">
+//             Processing...
+//           </button>
+//         )}
 
-//       {probabilities && (
-//         <div style={{ marginTop: "30px", maxWidth: "500px" }}>
-//           <Radar data={radarData} />
-//         </div>
-//       )}
+//         {/* Loading Spinner */}
+//         {isLoading && (
+//           <div className="loader-container">
+//             <div className="spinner"></div>
+//             <p>Analyzing emotion...</p>
+//           </div>
+//         )}
+
+//         {/* Result */}
+//         {emotion && !isLoading && (
+//           <div className="result">
+//             Emotion Detected:
+//             <span> {emotion.toUpperCase()}</span>
+//           </div>
+//         )}
+
+//         {/* Radar Chart */}
+//         {probabilities && !isLoading && (
+//           <div className="chart-box">
+//             <Radar data={radarData} options={radarOptions} />
+//           </div>
+//         )}
+//       </div>
 //     </div>
 //   );
 // }
 
 // export default App;
-
 
 import React, { useState, useRef } from "react";
 import "./App.css";
@@ -154,20 +210,49 @@ ChartJS.register(
   LineElement,
   Filler,
   Tooltip,
-  Legend
+  Legend,
 );
 
 function App() {
+  const [audioURL, setAudioURL] = useState(null);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [showPopup, setShowPopup] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emotion, setEmotion] = useState(null);
   const [probabilities, setProbabilities] = useState(null);
+  const emotionEmoji = {
+  happy: "😊",
+  sad: "😢",
+  angry: "😠",
+  calm: "😌",
+  neutral: "😐",
+  fearful: "😨"
+};
+// const emotionBackground = {
+//   happy: "https://www.vecteezy.com/free-photos/smiley-face-background",
+//   sad: "https://wallpapersafari.com/sad-day-wallpapers/",
+//   angry: "https://emotionslab.org/emotion/anger/",
+//   calm: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+//   neutral: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+//   fearful: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429"
+// };
+const emotionLabels = [
+  "neutral",
+  "calm",
+  "happy",
+  "sad",
+  "angry",
+  "fearful"
+];
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
   const startRecording = async () => {
+    setAudioURL(null);
+    setAudioBlob(null);
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
     const mediaRecorder = new MediaRecorder(stream);
@@ -178,30 +263,38 @@ function App() {
       chunksRef.current.push(event.data);
     };
 
-    mediaRecorder.onstop = async () => {
-      setIsLoading(true);
+    // mediaRecorder.onstop = async () => {
+    //   setIsLoading(true);
 
+    //   const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+    //   const formData = new FormData();
+    //   formData.append("file", blob, "recording.webm");
+
+    //   try {
+    //     const response = await fetch(
+    //       "https://hybrid-ser-backend.onrender.com/predict",
+    //       {
+    //         method: "POST",
+    //         body: formData,
+    //       },
+    //     );
+
+    //     const data = await response.json();
+    //     setEmotion(data.emotion);
+    //     setProbabilities(data.probability);
+    //   } catch (error) {
+    //     alert("Server error. Please try again.");
+    //   }
+
+    //   setIsLoading(false);
+    //   setIsProcessing(false);
+    // };
+    mediaRecorder.onstop = () => {
       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      const formData = new FormData();
-      formData.append("file", blob, "recording.webm");
 
-      try {
-        const response = await fetch(
-          "https://hybrid-ser-backend.onrender.com/predict",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+      setAudioBlob(blob);
+      setAudioURL(URL.createObjectURL(blob));
 
-        const data = await response.json();
-        setEmotion(data.emotion);
-        setProbabilities(data.probability);
-      } catch (error) {
-        alert("Server error. Please try again.");
-      }
-
-      setIsLoading(false);
       setIsProcessing(false);
     };
 
@@ -214,9 +307,36 @@ function App() {
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);     // stop pulse immediately
-      setIsProcessing(true);     // show processing button
+      setIsRecording(false);
+      setIsProcessing(true);
     }
+  };
+  const analyzeEmotion = async () => {
+    if (!audioBlob) return;
+
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append("file", audioBlob, "recording.webm");
+
+    try {
+      const response = await fetch(
+        "https://hybrid-ser-backend.onrender.com/predict",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      const data = await response.json();
+
+      setEmotion(data.emotion);
+      setProbabilities(data.probability);
+    } catch (error) {
+      alert("Server error. Please try again.");
+    }
+
+    setIsLoading(false);
   };
 
   const radarData = probabilities && {
@@ -228,7 +348,7 @@ function App() {
       "angry",
       "fearful",
       "disgust",
-      "surprised",
+     
     ],
     datasets: [
       {
@@ -244,170 +364,142 @@ function App() {
   const radarOptions = {
     scales: {
       r: {
-        grid: {
-          color: "rgba(0,0,0,0.2)"
-        },
-        angleLines: {
-          color: "rgba(0,0,0,0.2)"
-        },
-        pointLabels: {
-          color: "#111827"
-        },
-        ticks: {
-          color: "#111827",
-          backdropColor: "transparent"
-        }
-      }
+        grid: { color: "rgba(0,0,0,0.2)" },
+        angleLines: { color: "rgba(0,0,0,0.2)" },
+        pointLabels: { color: "#111827" },
+        ticks: { color: "#111827", backdropColor: "transparent" },
+      },
     },
     plugins: {
       legend: {
-        labels: {
-          color: "#111827"
-        }
-      }
-    }
+        labels: { color: "#111827" },
+      },
+    },
   };
 
   return (
-    <div className="app">
-      <div className="card">
-        <h1>🎤 Emotion AI</h1>
-        <p className="subtitle">
-          Speak naturally and let AI detect your emotion.
-        </p>
+    <div
+  className="app"
+ 
+>
+      {/* POPUP */}
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+            <div className="popup-left">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png"
+                alt="Emotion AI"
+              />
+            </div>
 
-        {/* Start Button */}
-        {!isRecording && !isProcessing && !isLoading && (
-          <button className="btn start" onClick={startRecording}>
-            Start Recording
-          </button>
-        )}
+            <div className="popup-right">
+              <h2>Hybrid Speech Emotion Recognition</h2>
+              <p>
+                This project uses Artificial Intelligence and machine learning
+                to detect human emotions from speech. The system extracts
+                acoustic features from your voice and predicts emotions such as
+                happy, sad, angry, calm, neutral, and fearful using trained deep
+                learning models.
+              </p>
 
-        {/* Recording Button */}
-        {isRecording && (
-          <button className="btn stop pulse" onClick={stopRecording}>
-            Recording...
-          </button>
-        )}
-
-        {/* Processing Button */}
-        {isProcessing && (
-          <button className="btn stop">
-            Processing...
-          </button>
-        )}
-
-        {/* Loading Spinner */}
-        {isLoading && (
-          <div className="loader-container">
-            <div className="spinner"></div>
-            <p>Analyzing emotion...</p>
+              <button className="btn start" onClick={() => setShowPopup(false)}>
+                Continue
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Result */}
-        {emotion && !isLoading && (
-          <div className="result">
-            Emotion Detected:
-            <span> {emotion.toUpperCase()}</span>
-          </div>
-        )}
+      {/* MAIN EMOTION UI */}
+      {!showPopup && (
+        <div className="card">
+          <h1>🎤 Emotion AI</h1>
+          <p className="subtitle">
+            Speak naturally and let AI detect your emotion.
+          </p>
 
-        {/* Radar Chart */}
-        {probabilities && !isLoading && (
-          <div className="chart-box">
-            <Radar data={radarData} options={radarOptions} />
-          </div>
-        )}
+          {!isRecording && !isProcessing && !isLoading && !audioURL && (
+            <button className="btn start" onClick={startRecording}>
+              Start Recording
+            </button>
+          )}
+
+          {isRecording && (
+            <button className="btn stop pulse" onClick={stopRecording}>
+              Recording...
+            </button>
+          )}
+
+          {audioURL && !isRecording && !isLoading && (
+            <div style={{ marginTop: "20px" }}>
+              <audio controls src={audioURL}></audio>
+
+              <br />
+              <br />
+
+              <button className="btn start" onClick={analyzeEmotion}>
+                Analyze Emotion
+              </button>
+              <br />
+              <br />
+
+              <button className="btn stop" onClick={startRecording}>
+                Record Again
+              </button>
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="loader-container">
+              <div className="spinner"></div>
+              <p>Analyzing emotion...</p>
+            </div>
+          )}
+
+          {/* {emotion && !isLoading && (
+            <div className="result">
+              Emotion Detected:
+              <span> {emotion.toUpperCase()}</span>
+            </div>
+          )} */}
+          {emotion && !isLoading && (
+  <div className="result">
+    Emotion Detected:
+    <span>
+      {" "}{emotion.toUpperCase()} {emotionEmoji[emotion]}
+    </span>
+  </div>
+)}
+{probabilities && !isLoading && (
+  <div className="confidence-box">
+
+    <h3>Emotion Confidence</h3>
+
+    {emotionLabels.map((label, index) => (
+      <div key={label} className="confidence-row">
+
+        <span>{label.toUpperCase()}</span>
+
+        <span>
+          {(probabilities[index] * 100).toFixed(1)}%
+        </span>
+
       </div>
+    ))}
+
+  </div>
+)}
+
+          {probabilities && !isLoading && (
+            <div className="chart-box">
+              <Radar data={radarData} options={radarOptions} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
 export default App;
-
-
-
-// import React, { useState, useRef } from "react";
-// import "./App.css";
-
-// function App() {
-//   const [isRecording, setIsRecording] = useState(false);
-//   const [emotion, setEmotion] = useState(null);
-
-//   const mediaRecorderRef = useRef(null);
-//   const chunksRef = useRef([]);
-
-//   const startRecording = async () => {
-//     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-//     const mediaRecorder = new MediaRecorder(stream);
-//     mediaRecorderRef.current = mediaRecorder;
-//     chunksRef.current = [];
-
-//     mediaRecorder.ondataavailable = (event) => {
-//       chunksRef.current.push(event.data);
-//     };
-
-//     mediaRecorder.onstop = async () => {
-
-//       const BASE_URL =
-//   window.location.hostname === "localhost"
-//     ? "http://localhost:5000"
-//     : "https://hybrid-ser-backend.onrender.com";
-
-//       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-
-//       const formData = new FormData();
-//       formData.append("file", blob, "recording.webm");
-
-//       const response = await fetch(`${BASE_URL}/predict`, {   //http://localhost:5000/predict
-//         method: "POST",
-//         body: formData,
-//       });
-
-//       const data = await response.json();
-
-//       setEmotion(data.emotion);
-//       setIsRecording(false);
-//     };
-
-//     mediaRecorder.start();
-//     setIsRecording(true);
-//   };
-
-//   const stopRecording = () => {
-//     mediaRecorderRef.current.stop();
-//   };
-
-//   return (
-//     <div className="container">
-//       <h1>🎤 Emotion Detection</h1>
-//       <p style={{ opacity: 0.8, marginBottom: "25px" }}>
-//         Speak naturally and let the model detect your emotional state.
-//       </p>
-
-//       {!isRecording && (
-//         <button className="button start-btn" onClick={startRecording}>
-//           Start Recording
-//         </button>
-//       )}
-
-//       {isRecording && (
-//         <button className="button stop-btn" onClick={stopRecording}>
-//           Stop Recording
-//         </button>
-//       )}
-
-//       {emotion && (
-//         <>
-//           <div className="result">
-//             Emotion Detected: <strong>{emotion}</strong>
-//           </div>
-//         </>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default App;
