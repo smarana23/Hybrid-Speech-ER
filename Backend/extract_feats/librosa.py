@@ -19,7 +19,7 @@ def features(X, sample_rate: float) -> np.ndarray:
     pitches, magnitudes = librosa.piptrack(y=X, sr=sample_rate, S=stft, fmin=70, fmax=400)
     pitch = []
     for i in range(magnitudes.shape[1]):
-        index = magnitudes[:, 1].argmax()
+        index = magnitudes[:, i].argmax()
         pitch.append(pitches[index, i])
 
     pitch_tuning_offset = librosa.pitch_tuning(pitches)
@@ -76,8 +76,26 @@ def features(X, sample_rate: float) -> np.ndarray:
 
     return ext_features
 
-def extract_features(file: str, pad: bool = False) -> np.ndarray:
-    X, sample_rate = librosa.load(file, sr=None)
+def extract_features(file: str, pad: bool = False):
+
+    X, sample_rate = librosa.load(file, sr=22050)
+
+    # remove silence
+    X, _ = librosa.effects.trim(X)
+
+    # normalize volume
+    X = librosa.util.normalize(X)
+
+    # boost speech frequencies
+    X = librosa.effects.preemphasis(X)
+
+    max_ = X.shape[0] / sample_rate
+
+    if pad:
+        length = (max_ * sample_rate) - X.shape[0]
+        X = np.pad(X, (0, int(length)), 'constant')
+
+    return features(X, sample_rate)
     max_ = X.shape[0] / sample_rate
     if pad:
         length = (max_ * sample_rate) - X.shape[0]
@@ -205,7 +223,7 @@ def get_data(config, data_path: str, train: bool) -> Union[Tuple[np.ndarray], np
             # elif(label == "happy" or label == "surprise"):
             #     label = "positive"
 
-            features = extract_features(file, max_)
+            features = extract_features(file, pad = True)
             mfcc_data.append([file, features, config.class_labels.index(label)])
 
     else:

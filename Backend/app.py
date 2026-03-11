@@ -11,7 +11,8 @@ import numpy as np
 
 app = Flask(__name__)
 CORS(app)
-
+sys.argv = ["app.py", "--config", "configs/lstm.yaml"]
+config = utils.parse_opt()
 @app.route('/predict', methods=['POST'])
 def predict_route():
 
@@ -27,9 +28,8 @@ def predict_route():
 
     file.save(audio_path)
 
-    import sys
-    sys.argv = ["app.py", "--config", "configs/lstm.yaml"]
-    config = utils.parse_opt()
+  
+    
 
     emotion, prob = predict.predict_emotion(config, audio_path)
 

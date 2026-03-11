@@ -2,8 +2,7 @@ model: lstm
 
 data_path: datasets
 
-class_labels: ["neutral", "calm", "happy", "sad", "angry", "fearful"]
-
+class_labels: ["neutral", "calm", "happy", "sad", "angry", "fearful", "disgust", "surprised"]
 feature_folder: features/ravdess/librosa/
 feature_method: l
 
