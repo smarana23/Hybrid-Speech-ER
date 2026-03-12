@@ -1,6 +1,6 @@
 // --------- Frontend ui ------------
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -13,7 +13,7 @@ import { EmotionProvider } from "./context/EmotionContext";
 function App() {
   return (
     <EmotionProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -22,7 +22,7 @@ function App() {
           <Route path="/history" element={<History />} />
 
         </Routes>
-      </BrowserRouter>
+       </HashRouter>
     </EmotionProvider>
   );
 }

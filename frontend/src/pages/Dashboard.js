@@ -49,14 +49,29 @@ function Dashboard() {
 "disgust",
 "surprised"
 ];
-  if (!probabilities) {
-    return (
-      <div className="dashboard-container">
-        <h2>No Emotion Data Yet</h2>
-        <p>Please record audio first.</p>
-      </div>
-    );
-  }
+if (!probabilities) {
+  return (
+    <div className="dashboard-container empty-dashboard">
+
+      <div className="empty-icon">🎤</div>
+
+      <h2>No Emotion Data Yet</h2>
+
+      <p>
+        Start recording your voice and discover what emotion
+        your voice expresses.
+      </p>
+
+      <button
+        className="dashboard-btn"
+        onClick={() => navigate("/record")}
+      >
+        Start Recording
+      </button>
+
+    </div>
+  );
+}
 const radarData = {
   labels: emotionLabels,
   datasets: [

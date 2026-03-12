@@ -119,3 +119,99 @@ background:#6a6aa5;
 audio{
 width:180px;
 }
+ /* ---------------- RESPONSIVE DESIGN ---------------- */
+
+
+/* Tablet screens */
+
+@media (max-width: 900px){
+
+.history-container{
+padding:30px 20px;
+}
+
+/* header stacks slightly */
+
+.history-header{
+flex-direction:column;
+align-items:flex-start;
+gap:10px;
+}
+
+/* table layout adjusts */
+
+.history-table-header{
+grid-template-columns:1fr 1fr 1fr;
+font-size:14px;
+}
+
+/* rows */
+
+.history-row{
+grid-template-columns:1fr 1fr 1fr;
+font-size:14px;
+}
+
+/* audio player smaller */
+
+audio{
+width:140px;
+}
+
+}
+
+
+/* Mobile screens */
+
+@media (max-width: 600px){
+
+.history-container{
+padding:20px 12px;
+}
+
+/* header stack */
+
+.history-header{
+flex-direction:column;
+align-items:flex-start;
+gap:10px;
+}
+
+/* hide table header on mobile */
+
+.history-table-header{
+display:none;
+}
+
+/* convert rows to cards */
+
+.history-row{
+display:flex;
+flex-direction:column;
+align-items:flex-start;
+
+gap:8px;
+
+padding:15px;
+}
+
+/* audio responsive */
+
+audio{
+width:100%;
+}
+
+/* emotion */
+
+.history-emotion{
+font-size:16px;
+}
+
+/* button */
+
+.history-btn{
+width:100%;
+margin-top:5px;
+}
+
+}

@@ -133,3 +133,86 @@ transform:translateY(-5px);
 color:#292964;
 margin-bottom:10px;
 }
+ /* ------------------ RESPONSIVE DESIGN ------------------ */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .main-title{
+    font-size:30px;
+  }
+
+  .intro-card{
+    flex-direction:column;
+    text-align:center;
+    gap:20px;
+  }
+
+  .intro-text{
+    text-align:center;
+  }
+
+  .intro-image img{
+    width:200px;
+  }
+
+  .feature-container{
+    gap:20px;
+  }
+
+  .feature-card{
+    width:220px;
+  }
+
+}
+
+
+/* Mobile Devices */
+@media (max-width: 600px) {
+
+  .home-container{
+    padding:40px 15px;
+  }
+
+  .main-title{
+    font-size:24px;
+    line-height:1.4;
+  }
+
+  .tagline{
+    font-size:16px;
+  }
+
+  .intro-card{
+    flex-direction:column;
+    padding:20px;
+  }
+
+  .intro-image img{
+    width:150px;
+  }
+
+  .intro-text{
+    font-size:14px;
+  }
+
+  .start-btn{
+    width:100%;
+    max-width:250px;
+  }
+
+  .features{
+    margin-top:50px;
+  }
+
+  .feature-container{
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .feature-card{
+    width:90%;
+    max-width:300px;
+  }
+
+}

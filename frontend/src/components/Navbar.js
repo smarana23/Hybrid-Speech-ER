@@ -5,7 +5,7 @@ function Navbar() {
   return (
     <nav className="navbar">
 
-      <h2 className="logo">Emotion AI</h2>
+      <h2 className="logo">Hybrid Speech Emotion Recognition System</h2>
 
       <div className="nav-links">
         <Link to="/">Home</Link>
