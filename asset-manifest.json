@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "./static/css/main.df402775.css",
-    "main.js": "./static/js/main.6a3340cc.js",
-    "static/js/453.20359781.chunk.js": "./static/js/453.20359781.chunk.js",
-    "index.html": "./index.html",
-    "main.df402775.css.map": "./static/css/main.df402775.css.map",
-    "main.6a3340cc.js.map": "./static/js/main.6a3340cc.js.map",
-    "453.20359781.chunk.js.map": "./static/js/453.20359781.chunk.js.map"
+    "main.css": "/Hybrid-Speech-Emotion-Recognition-System/static/css/main.1772ced2.css",
+    "main.js": "/Hybrid-Speech-Emotion-Recognition-System/static/js/main.057d829d.js",
+    "static/js/453.20359781.chunk.js": "/Hybrid-Speech-Emotion-Recognition-System/static/js/453.20359781.chunk.js",
+    "index.html": "/Hybrid-Speech-Emotion-Recognition-System/index.html",
+    "main.1772ced2.css.map": "/Hybrid-Speech-Emotion-Recognition-System/static/css/main.1772ced2.css.map",
+    "main.057d829d.js.map": "/Hybrid-Speech-Emotion-Recognition-System/static/js/main.057d829d.js.map",
+    "453.20359781.chunk.js.map": "/Hybrid-Speech-Emotion-Recognition-System/static/js/453.20359781.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.df402775.css",
-    "static/js/main.6a3340cc.js"
+    "static/css/main.1772ced2.css",
+    "static/js/main.057d829d.js"
   ]
 }
