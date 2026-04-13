@@ -129,4 +129,52 @@ padding:10px;
 margin:4px 0;
 }
 
+} 
+ /* HAMBURGER */
+
+.hamburger{
+display:none;
+font-size:26px;
+color:white;
+cursor:pointer;
+position:absolute;
+right:20px;
+top:20px;
+}
+
+
+/* MOBILE */
+
+@media (max-width:600px){
+
+.navbar{
+flex-direction:column;
+align-items:flex-start;
+position:relative;
+}
+
+/* SHOW hamburger */
+.hamburger{
+display:block;
+}
+
+/* HIDE links initially */
+.nav-links{
+display:none;
+flex-direction:column;
+width:100%;
+}
+
+/* SHOW when active */
+.nav-links.active{
+display:flex;
+}
+
+/* LINK STYLE */
+.nav-links a{
+width:100%;
+padding:12px;
+margin:5px 0;
+border-radius:6px;
+}
 }
